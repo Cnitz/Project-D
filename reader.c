@@ -131,15 +131,19 @@ double rd_parse_number(char buf[], int from, int to, int* err){
     int in = 0, pos = 0, neg = 0, dc = 0, num = 0, fd = -1, ld = -1;
     double ret = 0.0;
     *err = 0;
-    char *p = malloc(sizeof(char)*(to-from));
+    char *p = calloc(1, sizeof(char));
     
     for(int i = from; i <= to; i++){
         if(fd > -1){
+		p  = realloc(p,strlen(buf)-fd+1*sizeof(char));
             strncpy(p, buf+fd, strlen(buf)-fd);
+		p[strlen(buf)-fd] = '\0';
             ret = atof(p);
         }
         if(ld > -1){
+		p = realloc(p,ld-fd+1*sizeof(char));
             strncpy(p, buf+fd, (ld-fd));
+		p[ld-fd] = '\0';
             ret = atof(p);
         }
         
@@ -208,28 +212,36 @@ double rd_parse_number(char buf[], int from, int to, int* err){
         
         else if(buf[i] > '9' || buf[i] < '0') {
             *err = 1;
-            
+            		free(p);
                         return ret;
         }
     }
     
     if(ld > -1){
-                if(ld == fd)
+                if(ld == fd){
+		p = realloc(p,fd+1*sizeof(char));
            strncpy(p, buf+fd, (fd));
-        else
+		p[fd] = '\0';
+		}
+        else{
+		p = realloc(p,ld-fd+1*sizeof(char));
             strncpy(p, buf+fd, (ld-fd));
+			p[ld-fd] = '\0';
+		}
         ret = atof(p);
     }
     
     if(pos == 1){
         
-        
+        p = realloc(p,ld-fd*sizeof(char));
         strncpy(p, buf+fd+1, (ld-fd));
-        
-        return atof(p);
+        	p[ld-fd] = '\0';
+	ret = atof(p);
+free(p);
+        return ret;
     }
     
-    
+    free(p);
     return ret;
     
     

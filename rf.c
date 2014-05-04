@@ -34,7 +34,16 @@ int main(int argc, char *argv[]){
     //get the rest of the table
     Table* tbl = tbl_make();
     buffering(tbl);
+
+	
     
+	for(int i = 0; i < tbl_column_count(tbl); i++){
+		free(colnames[i]);
+	}
+tbl_free(tbl);
+rd_close(train);
+free(colnames);
+	
     //create multiple random trees!!!!
     //build_tree(ret);
     //double* test = class_mapping_double(tbl);
@@ -73,6 +82,7 @@ char** first_row(){
         to = rd_field_length(buffer, from+1, i);
         columns[k] = rd_parse_string(buffer, from, to);
         from = rd_field_length(buffer, from+1, i);
+
     }
     return columns;
 }
@@ -81,6 +91,7 @@ void buffering(Table *tbl){
     int i = 0, c, fields = 0, prev = 0, curr = 0, count = 0;
     char* hold = '\0';
     double dub;
+	char* free_me;
     for(int j = 0; j < 1500; j++){
         buffer[j] = '\0';
     }
@@ -106,7 +117,10 @@ void buffering(Table *tbl){
             rd_parse_number(buffer, 0, curr-1, err);
             
             if(*err == 1) {
-                tbl_add_string_to_row(tbl, rd_parse_string(buffer, 0, curr));
+		free_me = rd_parse_string(buffer, 0, curr);
+                tbl_add_string_to_row(tbl, free_me);
+		free(free_me);
+
             }
             else{
                 tbl_add_double_to_row(tbl, rd_parse_number(buffer, 0, curr, err));
@@ -120,7 +134,9 @@ void buffering(Table *tbl){
                 rd_parse_number(buffer, prev, (curr-1), err);
                 
                 if(*err == 1) {
-                    tbl_add_string_to_row(tbl, rd_parse_string(buffer, prev, curr));
+			free_me = rd_parse_string(buffer, prev, curr);
+                    tbl_add_string_to_row(tbl, free_me);
+			free(free_me);
                 }
                 else{
                     tbl_add_double_to_row(tbl, rd_parse_number(buffer, prev, curr, err));
@@ -136,6 +152,7 @@ void buffering(Table *tbl){
         }
     }
     tbl_done_building(tbl);
+	free(err);
 }
 
 void build_tree(Table* tbl, Tree* t){
