@@ -96,7 +96,7 @@ int main(){
         */
     
     //*******0.txt*********
-  /*  tbl_start_row(tbl, 5);
+    tbl_start_row(tbl, 5);
     tbl_add_string_to_row(tbl, p1);
     tbl_add_string_to_row(tbl, t1);
     tbl_add_string_to_row(tbl, h1);
@@ -162,9 +162,9 @@ int main(){
     tbl_add_string_to_row(tbl, h1);
     tbl_add_string_to_row(tbl, w2);
     tbl_add_double_to_row(tbl, 0.0);
-    tbl_done_building(tbl);*/
+    tbl_done_building(tbl);
     //tbl_print(tbl);
-    Table* ret = tbl_make();
+  /*  Table* ret = tbl_make();
     tbl_start_row(ret, 5);
     tbl_add_string_to_row(ret, p2);
     tbl_add_string_to_row(ret, t1);
@@ -189,7 +189,7 @@ int main(){
     tbl_add_string_to_row(ret, h1);
     tbl_add_string_to_row(ret, w1);
     tbl_add_double_to_row(ret, 0.0);
-    tbl_done_building(ret);
+    tbl_done_building(ret);*/
     char* split = "mild";
 
     
@@ -201,11 +201,12 @@ int main(){
    // tbl_print_row(rt);
     
    
-    
-    tbl = resample(ret);
+    Table* ret = tbl_make();
+    ret = resample(tbl);
    // tbl = resample(ret);
-    tbl_print(tbl);
-    //tbl_print(ret);
+   // tbl_print(ret);
+   // printf("\n");
+   // tbl_print(tbl);
     
     
 }
