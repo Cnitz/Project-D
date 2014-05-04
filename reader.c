@@ -135,13 +135,13 @@ double rd_parse_number(char buf[], int from, int to, int* err){
     
     for(int i = from; i <= to; i++){
         if(fd > -1){
-		p  = realloc(p,strlen(buf)-fd+1*sizeof(char));
+		p  = realloc(p,(strlen(buf)-fd+1)*sizeof(char));
             strncpy(p, buf+fd, strlen(buf)-fd);
 		p[strlen(buf)-fd] = '\0';
             ret = atof(p);
         }
         if(ld > -1){
-		p = realloc(p,ld-fd+1*sizeof(char));
+		p = realloc(p,(ld-fd+1)*sizeof(char));
             strncpy(p, buf+fd, (ld-fd));
 		p[ld-fd] = '\0';
             ret = atof(p);
@@ -174,7 +174,7 @@ double rd_parse_number(char buf[], int from, int to, int* err){
         
          if((buf[i] == ' ' || buf[i] == '\0') && fd > -1){
              if(ld == -1){
-            ld = i-1;
+            ld = i;
             in = 0;
              }
              else
@@ -219,12 +219,12 @@ double rd_parse_number(char buf[], int from, int to, int* err){
     
     if(ld > -1){
                 if(ld == fd){
-		p = realloc(p,fd+1*sizeof(char));
+		p = realloc(p,(fd+1)*sizeof(char));
            strncpy(p, buf+fd, (fd));
 		p[fd] = '\0';
 		}
         else{
-		p = realloc(p,ld-fd+1*sizeof(char));
+		p = realloc(p,(ld-fd+1)*sizeof(char));
             strncpy(p, buf+fd, (ld-fd));
 			p[ld-fd] = '\0';
 		}
@@ -233,7 +233,7 @@ double rd_parse_number(char buf[], int from, int to, int* err){
     
     if(pos == 1){
         
-        p = realloc(p,ld-fd*sizeof(char));
+        p = realloc(p,(ld-fd)*sizeof(char));
         strncpy(p, buf+fd+1, (ld-fd));
         	p[ld-fd] = '\0';
 	ret = atof(p);

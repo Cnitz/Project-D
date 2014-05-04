@@ -53,4 +53,14 @@ typedef struct node {
  */
 extern char **colnames;
 
+Column* get_column(Table* tbl, int index);
+
+Table* build_string_left_table(Table* tbl, char* split, int index);
+
+Table* build_string_right_table(Table* tbl, char* split, int index);
+
+Table* build_double_left_table(Table* tbl, double split, int index);
+
+Table* build_double_right_table(Table* tbl, double split, int index);
+
 #endif

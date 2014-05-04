@@ -59,4 +59,19 @@ double* find_diff_classes_double(double* list, int length);
 
 int double_compare(const void* a, const void* b);
 
+int* classes_for_entropy_str(char** key, Table* tbl);
+
+int find_val_str(char** list, int length, char* key);
+
+void print_class_mapping_str(char** list, int length);
+
+int number_of_class_str(char** ordered_list, int length);
+
+int* classes_for_entropy_double(double* key, Table* tbl);
+
+int find_val_double(double* list, int length, double key);
+
+void print_class_mapping_double(double* list, int length);
+
+int number_of_class_double(double* ordered_list, int length);
 
