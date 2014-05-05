@@ -220,18 +220,20 @@ Column* get_column(Table* tbl, int index){
     int rows = tbl_row_count(tbl);
  
     char type = tbl_row_type_at(tbl_row_at(tbl, 0), index);
+    char class_type = tbl_row_type_at(tbl_row_at(tbl, 0), tbl_column_count(tbl)-1);
     Column* column;
     char** strings;
     double* doubles;
-    unsigned int* classes = calloc(rows, sizeof(unsigned int));
+    unsigned int* classes;
     int last = tbl_column_count(tbl)-1;
     
    
-   
-    for(int i = 0; i < rows; i++){
-        classes[i] = (unsigned int)tbl_double_at(tbl_row_at(tbl, i), last);
-        
-    }
+   //get integer array for classes.
+   if(class_type == 'S')
+       classes = classes_for_entropy_str(class_mapping_string(tbl), tbl);
+    else
+        classes = classes_for_entropy_double(class_mapping_double(tbl), tbl);
+    
     
     if(type == 'S'){
         
@@ -252,6 +254,7 @@ Column* get_column(Table* tbl, int index){
             doubles[i] = tbl_double_at(tbl_row_at(tbl, i), index);
         }
        column = make_double_column(doubles, classes, rows);
+        
 	free(doubles);
     }
    

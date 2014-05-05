@@ -8,8 +8,10 @@
 /*
  * Represents the confusion matrix. To be defined by the student.
  */
-int find_expected();
-int find_actual();
+int find_expected_double();
+int find_actual_double();
+int find_actual_string();
+int find_expected_string();
 
 
 struct confmatrix {
@@ -31,7 +33,7 @@ ConfMatrix* cm_make(int classes){
     cm->classes = classes;
     cm->total = 0;
     cm->errors = 0;
-    cm->table = calloc(classes, sizeof(int));
+    cm->table = calloc(classes, sizeof(int*));
     for(int i = 0; i < classes; i++){
         cm->table[i] = calloc(classes, sizeof(int));
     }
@@ -49,14 +51,24 @@ ConfMatrix* cm_make(int classes){
 void cm_validate(ConfMatrix *cm, Table *tbl, Tree *tree){
     int expected = 0;
     int actual = 0;
-
+    int cols = tbl_column_count(tbl)-1;
+    char type = tbl_row_type_at(tbl_row_at(tbl, 0), tbl_column_count(tbl)-1);
+    if(type == 'D')
     for(int i = 0; i < tbl_row_count(tbl); i++){
-        expected = find_expected(tbl_row_at(tbl, i), tree);
-        actual = find_actual(tbl_row_at(tbl, i), tbl_column_count(tbl)-1);
+        expected = find_expected_double(tbl_row_at(tbl, i), tree);
+        actual = find_actual_double(tbl_row_at(tbl, i), cols);
         if(actual != expected) cm->errors++;
         cm->table[actual][expected]++;
         cm->total++;
     }
+    else
+        for(int i = 0; i < tbl_row_count(tbl); i++){
+            expected = find_expected_string(tbl_row_at(tbl, i), tree);
+            actual = find_actual_string(tbl, i);
+            if(actual != expected) cm->errors++;
+            cm->table[actual][expected]++;
+            cm->total++;
+        }
 
     
 }
@@ -141,7 +153,7 @@ int tbl_classes_count(Table *tbl){
     
 }
 
-int find_expected(Row* row, Tree* t){
+int find_expected_double(Row* row, Tree* t){
     
     Node* n = t_data(t);
     if(n->leaf == 1){
@@ -150,20 +162,44 @@ int find_expected(Row* row, Tree* t){
     }
     if(n->type == 'S'){
         if(strcmp(n->field.s, tbl_string_at(row, n->column)) == 0)
-            return find_expected(row, t_left(t));
+            return find_expected_double(row, t_left(t));
         else
-            return find_expected(row, t_right(t));
+            return find_expected_double(row, t_right(t));
     }
     if(n->type == 'D'){
         if(tbl_double_at(row, n->column) < n->field.d)
-            return find_expected(row, t_left(t));
+            return find_expected_double(row, t_left(t));
         else
-            return find_expected(row, t_right(t));
+            return find_expected_double(row, t_right(t));
     }
     return -1;
 }
 
-int find_actual(Row* row, int last_column){
+int find_actual_double(Row* row, int last_column){
     return (int)tbl_double_at(row, last_column);
 }
 
+int find_actual_string(Table* tbl,int row){
+    return find_value(tbl, row);
+}
+
+int find_expected_string(Row* row, Tree* t){
+    Node* n = t_data(t);
+    if(n->leaf == 1){
+        return n->class;
+        
+    }
+    if(n->type == 'S'){
+        if(strcmp(n->field.s, tbl_string_at(row, n->column)) == 0)
+            return find_expected_string(row, t_left(t));
+        else
+            return find_expected_string(row, t_right(t));
+    }
+    if(n->type == 'D'){
+        if(tbl_double_at(row, n->column) < n->field.d)
+            return find_expected_string(row, t_left(t));
+        else
+            return find_expected_string(row, t_right(t));
+    }
+    return -1;
+}

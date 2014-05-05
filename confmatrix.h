@@ -58,4 +58,6 @@ void cm_free(ConfMatrix* cm);
  */
 int tbl_classes_count(Table *);
 
+
+
 #endif

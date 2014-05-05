@@ -5,12 +5,7 @@
 //  Created by Christian Nitz on 3/30/14.
 //
 //
-#include "column.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
+#include "defs_itf.h"
 #define ERROR .001
 
 int find_lrg_class();
@@ -92,27 +87,31 @@ int has_single_value(Column *column){
     if(column == NULL) return -1;
     if(column->n == 0) return 0;
     if(column->n <= 1) return 1;
+    double prev;
+    char* check;
     if(column->type == 'D'){
+        prev = column->fields.d[0];
         for( int i = 0; i < column->n; i++){
-            for(int k = 0; k < column->n; k++){
-                if( fabs(column->fields.d[i]-column->fields.d[k]) <= .001)
+            
+                if( fabs(column->fields.d[i]-prev) <= .001)
                     continue;
                 else
                     return 0;
                 
-            }
+            
         }
     }
-    if(column->type == 'S'){
+    else{
+        check = column->fields.f[0];
         for( int i = 0; i < column->n; i++){
-            for(int k = 0; k < column->n; k++){
-                if(strcmp(column->fields.f[i], column->fields.f[k]) == 0)
+            
+                if(strcmp(column->fields.f[i], check) == 0)
                     continue;
                 else
                     return 0;
                 
             }
-        }
+        
     }
     
     return 1;
@@ -168,40 +167,48 @@ double calc_entropy(Column *column){
  * and the second column contains the remaining fields.
  */
 double find_double_split_value(Column *column){
+    
+    int length;
+    double* copy = calloc(column->n, sizeof(double));
+    memcpy(copy, column->fields.d, sizeof(double)*column->n);
+    qsort(copy, column->n, sizeof(double), double_compare);
+    length = number_of_class_double(copy, column->n);
+    double* copy2 = find_diff_classes_double(copy, column->n);
+
     double split = 0, entropy = 0, left = 0, right = 0, prev = 0, ret = 0, avg = 0, max = 0;
     int count = 0;
     //entropy = calc_entropy(column);
-    for(int i = 0; i < column->n; i++){
-        left = calc_left_double(column, column->fields.d[i]);
-        right = calc_right_double(column, column->fields.d[i]);
+    for(int i = 0; i < length; i++){
+        left = calc_left_double(column, copy2[i]);
+        right = calc_right_double(column, copy2[i]);
         
         
         entropy = left + right;
         if(i == 0){
             prev = entropy;
-            ret = column->fields.d[i];
-            max = column->fields.d[i];
+            ret = copy2[i];
+            max = copy2[i];
         }
       
-        if(column->fields.d[i] > max + ERROR)
-            max = column->fields.d[i];
+        if(copy2[i] > max + ERROR)
+            max = copy2[i];
         
         if(prev > entropy){
-            ret = column->fields.d[i];
+            ret = copy2[i];
             prev = entropy;
         }
         
         if(fabs(entropy - prev) < ERROR){
-            if(ret - ERROR < column->fields.d[i])
-                ret = column->fields.d[i];
+            if(ret - ERROR < copy2[i])
+                ret = copy2[i];
         }
         
     }
     
-    for(int i = 0; i < column->n; i++){
-     if(column->fields.d[i] > (ret + ERROR))
-         if(column->fields.d[i] < max - ERROR)
-             max = column->fields.d[i];
+    for(int i = 0; i < length; i++){
+     if(copy2[i] > (ret + ERROR))
+         if(copy2[i] < max - ERROR)
+             max = copy2[i];
     }
     avg = (max+ret)/2.0;
     //printf("%.2f", ret);
@@ -252,6 +259,7 @@ double find_string_split_entropy(Column* column){
     char* ret;
     
     for(int i = 0; i < column->n; i++){
+        
         left = calc_left_str(column, column->fields.f[i]);
         right = calc_right_str(column, column->fields.f[i]);
         
@@ -274,23 +282,31 @@ double find_string_split_entropy(Column* column){
 }
 
 double find_double_split_entropy(Column* column){
+    
+    int length;
+    double* copy = calloc(column->n, sizeof(double));
+    memcpy(copy, column->fields.d, sizeof(double)*column->n);
+    qsort(copy, column->n, sizeof(double), double_compare);
+    length = number_of_class_double(copy, column->n);
+    double* copy2 = find_diff_classes_double(copy, column->n);
+    
     double split = 0, entropy = 0, left = 0, right = 0, prev = 0, ret = 0, avg = 0, max = 0;
     int count = 0;
     //entropy = calc_entropy(column);
-    for(int i = 0; i < column->n; i++){
-        left = calc_left_double(column, column->fields.d[i]);
-        right = calc_right_double(column, column->fields.d[i]);
+    for(int i = 0; i < length; i++){
+        left = calc_left_double(column, copy2[i]);
+        right = calc_right_double(column, copy2[i]);
         
         
         entropy = left + right;
         if(i == 0){
             prev = entropy;
-            ret = column->fields.d[i];
-            max = column->fields.d[i];
+            ret = copy2[i];
+            max = copy2[i];
         }
         
         if(prev > entropy){
-            ret = column->fields.d[i];
+            ret = copy2[i];
             prev = entropy;
         }
     }

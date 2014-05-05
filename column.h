@@ -58,3 +58,5 @@ char *find_string_split_value(Column *column);
 double find_double_split_entropy(Column* column);
 
 double find_string_split_entropy(Column* column);
+
+int double_compare(const void* a, const void* b);
