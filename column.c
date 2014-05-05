@@ -212,6 +212,7 @@ double find_double_split_value(Column *column){
     }
     avg = (max+ret)/2.0;
     //printf("%.2f", ret);
+    free(copy2);
     return avg;
 }
 
@@ -311,6 +312,7 @@ double find_double_split_entropy(Column* column){
         }
     }
     // printf("%.2f", avg);
+    free(copy2);
     return (-1.0)*prev;
     
 }

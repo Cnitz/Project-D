@@ -284,27 +284,14 @@ if(g == 0) return NULL;
     
     Table* ret = tbl_make();
     char* type = tbl_type(tbl);
+    Row* hold;
     
     int cols = tbl_column_count(tbl);
     
     for(int i = 0; i < g; i++){
         
-        tbl_start_row(ret, cols);
-        for(int k = 0; k < cols; k++){
-            
-            if(type[k] == 'D'){
-                double d = tbl_double_at(tbl_row_at(tbl, loc[i]), k);
-                tbl_add_double_to_row(ret, d);
-            }
-            
-            if(type[k] == 'S'){
-                
-                char* str = calloc(strlen(tbl_string_at(tbl_row_at(tbl, loc[i]), k))+1, sizeof(char));
-                strcpy(str, tbl_string_at(tbl_row_at(tbl, loc[i]), k));
-                tbl_add_string_to_row(ret, str);
-		free(str);
-            }
-        }
+        hold = tbl_copy_row(tbl_row_at(tbl, loc[i]));
+        tbl_add_row(ret, hold);
     }
    
  
@@ -335,27 +322,13 @@ if(g == 0) return NULL;
     
     Table* ret = tbl_make();
     char* type = tbl_type(tbl);
-    
+    Row* hold;
     
     
     for(int i = 0; i < g; i++){
         
-        tbl_start_row(ret, tbl_column_count(tbl));
-        
-        for(int k = 0; k < tbl_column_count(tbl); k++){
-            
-            if(type[k] == 'D'){
-                double d = tbl_double_at(tbl_row_at(tbl, loc[i]), k);
-                tbl_add_double_to_row(ret, d);
-            }
-            
-            if(type[k] == 'S'){
-                char* str = calloc(strlen(tbl_string_at(tbl_row_at(tbl, loc[i]), k))+1, sizeof(char));
-                strcpy(str, tbl_string_at(tbl_row_at(tbl, loc[i]), k));
-                tbl_add_string_to_row(ret, str);
-		free(str);
-            }
-        }
+        hold = tbl_copy_row(tbl_row_at(tbl, loc[i]));
+        tbl_add_row(ret, hold);
     }
    
     free(loc);
@@ -384,26 +357,13 @@ if(g == 0) return NULL;
     
     Table* ret = tbl_make();
     char* type = tbl_type(tbl);
-    
+    Row* hold;
     
     
     for(int i = 0; i < g; i++){
         
-        tbl_start_row(ret, tbl_column_count(tbl));
-        
-        for(int k = 0; k < tbl_column_count(tbl); k++){
-            
-            if(type[k] == 'D'){
-                double d = tbl_double_at(tbl_row_at(tbl, loc[i]), k);
-                tbl_add_double_to_row(ret, d);
-            }
-            
-            if(type[k] == 'S'){
-                
-               
-                tbl_add_string_to_row(ret, tbl_string_at(tbl_row_at(tbl, loc[i]), k));
-            }
-        }
+        hold = tbl_copy_row(tbl_row_at(tbl, loc[i]));
+        tbl_add_row(ret, hold);
     }
     
     free(loc);
@@ -432,25 +392,13 @@ Table* build_double_right_table(Table* tbl, double split, int index){
     
     Table* ret = tbl_make();
     char* type = tbl_type(tbl);
-    
+    Row* hold;
     
     
     for(int i = 0; i < g; i++){
         
-        tbl_start_row(ret, tbl_column_count(tbl));
-        
-        for(int k = 0; k < tbl_column_count(tbl); k++){
-            
-            if(type[k] == 'D'){
-                double d = tbl_double_at(tbl_row_at(tbl, loc[i]), k);
-                tbl_add_double_to_row(ret, d);
-            }
-            
-            if(type[k] == 'S'){
-               
-                tbl_add_string_to_row(ret, tbl_string_at(tbl_row_at(tbl, loc[i]), k));
-            }
-        }
+        hold = tbl_copy_row(tbl_row_at(tbl, loc[i]));
+        tbl_add_row(ret, hold);
     }
     
     free(loc);
