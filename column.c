@@ -455,6 +455,7 @@ int count_classes_left_double(Column* c, int n, double value){
 
 int count_classes_right_double(Column* c, int n, double value){
     if(c == NULL) return -1;
+    
     int count = 0;
     for(int i = 0; i < c->n; i++){
         if(c->fields.d[i] > value + ERROR){

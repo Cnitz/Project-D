@@ -52,14 +52,21 @@ void cm_validate(ConfMatrix *cm, Table *tbl, Tree *tree){
     int expected = 0;
     int actual = 0;
     int cols = tbl_column_count(tbl)-1;
+  
     char type = tbl_row_type_at(tbl_row_at(tbl, 0), tbl_column_count(tbl)-1);
-    if(type == 'D')
+    
+    if(type == 'D'){
     for(int i = 0; i < tbl_row_count(tbl); i++){
+       
         expected = find_expected_double(tbl_row_at(tbl, i), tree);
+        
         actual = find_actual_double(tbl_row_at(tbl, i), cols);
+        
         if(actual != expected) cm->errors++;
+        
         cm->table[actual][expected]++;
         cm->total++;
+    }
     }
     else
         for(int i = 0; i < tbl_row_count(tbl); i++){

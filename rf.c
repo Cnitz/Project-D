@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
     int trees = 0;
     char type;
     char class_type;
-    srand(13);
+    srand(17);
     
     //Get -train and -validate files and number of trees
     if(ca_defined("train"))
@@ -57,8 +57,10 @@ int main(int argc, char *argv[]){
     
     int space = 0;
     
-    
-    t_print(tree_data[0], space, dt_print);
+    for(int i = 0; i < trees; ++i){
+    t_print(tree_data[i], space, dt_print);
+        printf("\n");
+    }
     rd_close();
     
    
@@ -75,16 +77,20 @@ int main(int argc, char *argv[]){
     //set type of class to
     ConfMatrix* cm;
     printf("Building confmatrix:\n");
+    
     if(class_type == 'D'){
-    double* doubles = classes_double(tbl_v);
-    cm = cm_make(number_of_class_double(doubles,tbl_row_count(tbl_v)));
+        class_mapping_double_print(tbl);
+    double* doubles = classes_double(tbl);
+    cm = cm_make(number_of_class_double(doubles,tbl_row_count(tbl)));
+        printf("built\n");
     }
     else
     {
-        char** strings = classes_str(tbl_v);
-        cm = cm_make(number_of_class_str(strings,tbl_row_count(tbl_v)));
+        class_mapping_string_print(tbl);
+        char** strings = classes_str(tbl);
+        cm = cm_make(number_of_class_str(strings,tbl_row_count(tbl)));
     }
-    
+    printf("validating:\n");
     for(int i = 0; i < trees; ++i){
         
         cm_validate(cm, tbl_v, tree_data[i]);
@@ -93,7 +99,7 @@ int main(int argc, char *argv[]){
     printf("finished\n");
     cm_print(cm);
     
-   
+    
     
     
 
@@ -259,7 +265,7 @@ void build_tree(Table* org_tbl,Table* tbl, Tree* tree){
     char* split_s;
     char type;
     
-    int two_thirds = (2*cols)/3;
+    int two_thirds = (2*(cols-1))/3;
     int* loc = two_thirds_columns(cols);
     
     for(int i = 0; i < two_thirds; i++){
@@ -635,8 +641,9 @@ void class_mapping_double_print(Table* tbl){
 int* two_thirds_columns(int cols){
     int* loc = calloc(1, sizeof(int));
     int index = 1;
-    int two_thirds = (2*cols)/3;
-    int hold_check = rand()%(cols);
+    
+    int two_thirds = (2*(cols-1))/3;
+    int hold_check = rand()%(cols-1);
    
     
     for(int i = 0; i < two_thirds; ++i) {
@@ -647,7 +654,7 @@ int* two_thirds_columns(int cols){
         }
         hold_check = rand()%(cols-1);
         while(checker(loc, index, hold_check) == 0){
-            hold_check = rand()%(cols);
+            hold_check = rand()%(cols-1);
         }
         loc = realloc(loc, index*sizeof(int));
         ++index;
