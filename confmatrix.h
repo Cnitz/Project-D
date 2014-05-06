@@ -27,7 +27,7 @@ ConfMatrix* cm_make(int classes);
  *   in the table to the predicted class it finds from the tree.
  *   Each prediction will be recorded in the confusion matrix [cm]. 
  */
-void cm_validate(ConfMatrix *cm, Table *tbl, Tree *tree);
+void cm_validate(ConfMatrix *cm, Table *tbl, Tree **tree, int trees);
 
 /* 
  * cm_print:
@@ -58,6 +58,12 @@ void cm_free(ConfMatrix* cm);
  */
 int tbl_classes_count(Table *);
 
+int find_most_voted(int* p, int length);
 
+int find_expected_string_vote(Row* row, Tree** tree, int trees);
+
+int find_expected_double_vote(Row* row, Tree** tree, int trees);
+
+void count_errors(int classes, ConfMatrix* cm);
 
 #endif

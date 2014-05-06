@@ -15,6 +15,8 @@ int main(int argc, char *argv[]){
     int trees = 0;
     char type;
     char class_type;
+    char* class_s;
+    int class_d;
     srand(17);
     
     //Get -train and -validate files and number of trees
@@ -28,7 +30,6 @@ int main(int argc, char *argv[]){
         valid = ca_str_value("v");
     if(ca_defined("trees"))
         trees = ca_int_value("trees");
-    
     //open file
     rd_open(train);
     
@@ -37,30 +38,41 @@ int main(int argc, char *argv[]){
     
     //get the rest of the table
     Table* tbl = tbl_make();
-    printf("table buffer:\n");
+ 
     buffering(tbl);
-    printf("finished\n");
+
     class_type = tbl_row_type_at(tbl_row_at(tbl, 0), tbl_column_count(tbl)-1);
+    if(class_type == 'S'){
+        if(ca_defined("class"))
+            class_s = ca_str_value("class");
+        if(ca_defined("c"))
+            class_s = ca_str_value("class");
+        }
+    if(class_type == 'D'){
+        if(ca_defined("class"))
+            class_d = ca_int_value("class");
+        if(ca_defined("c"))
+            class_d = ca_int_value("class");
+    }
+    
+            
     Tree** tree_data = calloc(trees, sizeof(Tree*));
     Table* ret;
     for(int i = 0; i < trees; ++i){
         tree_data[i] = t_make();
-        printf("Start table resampling:\n");
+        
         ret = resample(tbl);
-        printf("finished\n");
+       
        // printf("%d\n",majority_class(tbl));
-        printf("Start table building tree:\n");
+       
         build_tree(ret, ret, tree_data[i]);
-        printf("finished\n");
+
     }
     
     
     int space = 0;
     
-    for(int i = 0; i < trees; ++i){
-    t_print(tree_data[i], space, dt_print);
-        printf("\n");
-    }
+    
     rd_close();
     
    
@@ -71,18 +83,44 @@ int main(int argc, char *argv[]){
     
     Table* tbl_v = tbl_make();
     skip_first_row();
-    printf("Buffering second table:\n");
+
     buffering(tbl_v);
-    printf("finished\n");
+
     //set type of class to
     ConfMatrix* cm;
-    printf("Building confmatrix:\n");
+   
     
+    if(ca_defined("class") || ca_defined("c")){
+        if(class_type == 'D'){
+            double* map_d = class_mapping_double(tbl);
+            double* doubles = classes_double(tbl);
+            cm = cm_make(number_of_class_double(doubles,tbl_row_count(tbl)));
+            cm_validate(cm, tbl_v, tree_data, trees);
+            count_errors(find_val_double(map_d, class_number,class_d),cm);
+          
+        }
+        else
+        {
+            char** map_s = class_mapping_string(tbl);
+            char** strings = classes_str(tbl);
+            
+            cm = cm_make(number_of_class_str(strings,tbl_row_count(tbl)));
+            cm_validate(cm, tbl_v, tree_data, trees);
+            count_errors(find_val_str(map_s, class_number,class_s),cm);
+        }
+        
+        
+        
+
+        
+        
+    }
+    else{
     if(class_type == 'D'){
         class_mapping_double_print(tbl);
     double* doubles = classes_double(tbl);
     cm = cm_make(number_of_class_double(doubles,tbl_row_count(tbl)));
-        printf("built\n");
+       
     }
     else
     {
@@ -90,15 +128,13 @@ int main(int argc, char *argv[]){
         char** strings = classes_str(tbl);
         cm = cm_make(number_of_class_str(strings,tbl_row_count(tbl)));
     }
-    printf("validating:\n");
-    for(int i = 0; i < trees; ++i){
         
-        cm_validate(cm, tbl_v, tree_data[i]);
-        
+        cm_validate(cm, tbl_v, tree_data, trees);
+  
+        cm_print(cm);
     }
-    printf("finished\n");
-    cm_print(cm);
     
+   
     
     
     
@@ -234,9 +270,7 @@ void buffering(Table *tbl){
 
 void build_tree(Table* org_tbl,Table* tbl, Tree* tree){
     if(tbl == NULL) return;
-    static int progress = 1;
-    printf("working on split: %d\n", progress);
-    progress++;
+    
     Node* n = n_make();
     Column* c;
     int count = 0;

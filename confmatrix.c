@@ -12,6 +12,7 @@ int find_expected_double();
 int find_actual_double();
 int find_actual_string();
 int find_expected_string();
+int find_most_voted();
 
 
 struct confmatrix {
@@ -48,7 +49,7 @@ ConfMatrix* cm_make(int classes){
  *   in the table to the predicted class it finds from the tree.
  *   Each prediction will be recorded in the confusion matrix [cm].
  */
-void cm_validate(ConfMatrix *cm, Table *tbl, Tree *tree){
+void cm_validate(ConfMatrix *cm, Table *tbl, Tree **tree, int trees){
     int expected = 0;
     int actual = 0;
     int cols = tbl_column_count(tbl)-1;
@@ -58,7 +59,7 @@ void cm_validate(ConfMatrix *cm, Table *tbl, Tree *tree){
     if(type == 'D'){
     for(int i = 0; i < tbl_row_count(tbl); i++){
        
-        expected = find_expected_double(tbl_row_at(tbl, i), tree);
+        expected = find_expected_double_vote(tbl_row_at(tbl, i), tree, trees);
         
         actual = find_actual_double(tbl_row_at(tbl, i), cols);
         
@@ -70,7 +71,7 @@ void cm_validate(ConfMatrix *cm, Table *tbl, Tree *tree){
     }
     else
         for(int i = 0; i < tbl_row_count(tbl); i++){
-            expected = find_expected_string(tbl_row_at(tbl, i), tree);
+            expected = find_expected_string_vote(tbl_row_at(tbl, i), tree, trees);
             actual = find_actual_string(tbl, i);
             if(actual != expected) cm->errors++;
             cm->table[actual][expected]++;
@@ -210,3 +211,63 @@ int find_expected_string(Row* row, Tree* t){
     }
     return -1;
 }
+
+int find_expected_double_vote(Row* row, Tree** t, int trees){
+    int* ret = malloc(trees*sizeof(int));
+    for(int i = 0; i < trees; ++i){
+        ret[i] = find_expected_double(row, t[i]);
+    }
+    int hold = find_most_voted(ret, trees);
+    free(ret);
+    return hold;
+}
+
+int find_expected_string_vote(Row* row, Tree** t, int trees){
+    int* ret = malloc(trees*sizeof(int));
+    for(int i = 0; i < trees; ++i){
+        ret[i] = find_expected_string(row, t[i]);
+    }
+    int hold = find_most_voted(ret, trees);
+    free(ret);
+    return hold;
+}
+int find_most_voted(int* p, int length){
+    int* max = calloc(length, sizeof(int));
+    int prev, index;
+    
+    for(int i = 0; i < length; ++i){
+        for(int k = 0; k < length; ++k){
+            if(p[i] == p[k])
+                max[i]++;
+            
+        }
+    }
+   
+    for(int i = 0; i < length; ++i){
+        if(i == 0){
+            index = i;
+            prev = max[i];
+        }
+        if(prev == max[i]){
+            if(p[index] > p[i])
+                index = i;
+        }
+        if(prev < max[i]){
+            prev = max[i];
+            index = i;
+        }
+    }
+    free(max);
+    return p[index];
+}
+
+void count_errors(int class, ConfMatrix* cm){
+    int add = 0;
+    for(int i = 0; i < cm->classes; ++i){
+        if(class == i) continue;
+       
+        add += cm->table[i][class];
+    }
+    printf("%d\n", add);
+}
+
